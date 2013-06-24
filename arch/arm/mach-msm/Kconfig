@@ -153,16 +153,6 @@ config ARCH_MSM9615
 	select MSM_RPM
 	select MSM_SPM_V2
 	select MSM_NATIVE_RESTART
-config ARCH_MSM8625
-	bool "MSM8625"
-	select ARCH_MSM_CORTEX_A5
-	select CPU_V7
-	select MSM_GPIOMUX
-	select ARM_GIC
-	select ARCH_MSM_CORTEXMP
-	select MULTI_IRQ_HANDLER
-	select ARM_TICKET_LOCKS
-	select MSM_RUN_QUEUE_STATS
 endmenu
 
 choice
@@ -212,9 +202,6 @@ config  ARCH_MSM_KRAITMP
 	select MSM_SMP
 	bool
 
-config  ARCH_MSM_CORTEXMP
-	select MSM_SMP
-	bool
 config  ARCH_MSM_CORTEX_A5
 	bool
 	select PERF_EVENTS if !ARCH_MSM9615
@@ -393,15 +380,6 @@ config MACH_PRIMODS
 		bool "Primods"
 		help
 			Support for Primods (PDA phone).
-
-config MACH_PROTOU
-		depends on ARCH_MSM8625
-		depends on !MSM_STACKED_MEMORY
-		default n
-		select FB_MSM_MIPI_VIDEO_ONLY
-		bool "Protou"
-		help
-			Support for Protou (PDA phone).
 
 config MACH_MSM7625A_SURF
         depends on ARCH_MSM7X27A
@@ -1066,11 +1044,6 @@ config HTC_BATT_8960
 	depends on HTC_BATT_CORE
 	default n
 	bool "HTC battery driver for 8960"
-config BUILD_KDDI
-        bool "Build in KDDI fixes"
-        default n
-        help
-          For KDDI we need to do some additional fixes.
 
 choice
 	prompt "Default Timer"
@@ -1610,7 +1583,15 @@ config MSM_DALRPC_TEST
 	help
 	  Exercises DAL RPC calls to QDSP6.
 
-if CPU_FREQ_MSM
+config CPU_VOLTAGE_TABLE
+    bool "Enable CPU Voltage Table via sysfs for adjustements"
+    default n
+ 
+config CMDLINE_OPTIONS
+	bool "Enable cmdline options command parsing"
+	default n
+	help
+	  This enables the parsing of cmdline options.
 
 config MSM_CPU_FREQ_SET_MIN_MAX
 	bool "Set Min/Max CPU frequencies."
@@ -1638,6 +1619,12 @@ config MSM_CPU_FREQ_ONDEMAND_MAX
 config MSM_CPU_FREQ_ONDEMAND_MIN
         int "Min"
         default 245760
+
+config ACPUCLOCK_OVERCLOCKING
+	bool "Enable support for CPU overclocking"
+	default n
+	depends on CPU_FREQ && !PERFLOCK
+	depends on ARCH_MSM7X30
 
 config MSM_CPU_AVS
 	bool "Enable software controlled Adaptive Voltage Scaling (AVS)"
@@ -2222,17 +2209,6 @@ config MSM_SLEEP_STATS
 	depends on CPU_IDLE
 	default n
 
-config MSM_SLEEP_STATS_DEVICE
-	bool "Enable exporting of MSM sleep device stats to userspace"
-
-config MSM_RUN_QUEUE_STATS
-	bool "Enable collection and exporting of MSM Run Queue stats to userspace"
-	depends on (MSM_SOC_REV_A || ARCH_MSM8X60 || ARCH_MSM8960)
-	help
-	 This option enalbes statistics collection on Run Queue. A daemon
-         in user mode, called MPDecision will be using this data to decide
-         on when to switch off/on the other cores.
-
 config MSM_STANDALONE_POWER_COLLAPSE
        bool "Enable standalone power collapse"
        default n
@@ -2283,6 +2259,13 @@ config MSM_FAKE_BATTERY
 		help
 		 Enables MSM fake battery driver.
 
+config FORCE_FAST_CHARGE
+        bool "Force AC charge mode at will"
+        default y
+        help
+          A simple sysfs interface to force adapters that
+          are detected as USB to charge as AC.
+ 
 config MSM_QDSP6_APR
 	bool "Audio QDSP6 APR support"
 	depends on MSM_SMD
@@ -2413,18 +2396,11 @@ config REMOVE_EBI1_FIXED_CLK
 	default n
 	help
 		use for 2x Radio
-		
-config ROM_TYPE
-	bool "SYSFS interface to set misc parameters"
-	default y
-	help
-		A simple sysfs interface to define rom type
-		ex: sense vs aosp
-		
+
 config HTC_ACCESSORY_ONEWIRE
         tristate "HTC accessory one wire protocol driver"
         default n
         help
           Provides support of HTC one wire protocol driver.
 
-endif
+
