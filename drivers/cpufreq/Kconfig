@@ -161,6 +161,11 @@ config CPU_FREQ_DEFAULT_GOV_BADASS
 	help
 	Use the CPUFreq governor 'badass' as default.
 
+config CPU_FREQ_DEFAULT_GOV_DANCEDANCE
+        bool "dancedance"
+        select CPU_FREQ_GOV_DANCEDANCE  
+	help 
+
 endchoice
 
 config CPU_FREQ_GOV_SMARTASS2
@@ -344,7 +349,10 @@ config CPU_FREQ_GOV_SMARTASSH3
 
     If in doubt, say N. 
 
-
+config CPU_FREQ_GOV_DANCEDANCE
+  tristate "'dancedance' cpufreq governor"
+  depends on CPU_FREQ
+ 
 config CPU_FREQ_VDD_LEVELS
 	bool "CPU Vdd levels sysfs interface"
 	depends on CPU_FREQ_STAT
