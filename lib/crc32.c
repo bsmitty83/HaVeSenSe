@@ -1,13 +1,7 @@
 /*
-<<<<<<< HEAD
  * Aug 8, 2011 Bob Pearson with help from Joakim Tjernlund and George Spelvin
  * cleaned up code to current version of sparse and added the slicing-by-8
  * algorithm to the closely similar existing slicing-by-4 algorithm.
-=======
- * July 20, 2011 Bob Pearson <rpearson at systemfabricworks.com>
- * added slice by 8 algorithm to the existing conventional and
- * slice by 4 algorithms.
->>>>>>> 35da0ea... lib/crc: add slice by 8 algorithm to crc32.c
  *
  * Oct 15, 2000 Matt Domsch <Matt_Domsch@dell.com>
  * Nicer crc32 functions/docs submitted by linux@horizon.com.  Thanks!
@@ -29,12 +23,9 @@
  * This source code is licensed under the GNU General Public License,
  * Version 2.  See the file COPYING for more details.
  */
-<<<<<<< HEAD
 
 /* see: Documentation/crc32.txt for a description of algorithms */
 
-=======
->>>>>>> 35da0ea... lib/crc: add slice by 8 algorithm to crc32.c
 #include <linux/crc32.h>
 #include <linux/module.h>
 #include <linux/types.h>
@@ -58,7 +49,6 @@ MODULE_AUTHOR("Matt Domsch <Matt_Domsch@dell.com>");
 MODULE_DESCRIPTION("Various CRC32 calculations");
 MODULE_LICENSE("GPL");
 
-<<<<<<< HEAD
 #if CRC_LE_BITS > 8 || CRC_BE_BITS > 8
 
 /* implements slicing-by-4 or slicing-by-8 algorithm */
@@ -135,227 +125,6 @@ crc32_body(u32 crc, unsigned char const *buf, size_t len, const u32 (*tab)[256])
 #undef DO_CRC
 #undef DO_CRC4
 #undef DO_CRC8
-=======
-#if CRC_LE_BITS > 8
-static inline u32 crc32_le_body(u32 crc, u8 const *buf, size_t len)
-{
-	const u8 *p8;
-	const u32 *p32;
-	int init_bytes, end_bytes;
-	size_t words;
-	int i;
-	u32 q;
-	u8 i0, i1, i2, i3;
-
-	crc = (__force u32) __cpu_to_le32(crc);
-
-#if CRC_LE_BITS == 64
-	p8 = buf;
-	p32 = (u32 *)(((uintptr_t)p8 + 7) & ~7);
-
-	init_bytes = (uintptr_t)p32 - (uintptr_t)p8;
-	if (init_bytes > len)
-		init_bytes = len;
-	words = (len - init_bytes) >> 3;
-	end_bytes = (len - init_bytes) & 7;
-#else
-	p8 = buf;
-	p32 = (u32 *)(((uintptr_t)p8 + 3) & ~3);
-
-	init_bytes = (uintptr_t)p32 - (uintptr_t)p8;
-	if (init_bytes > len)
-		init_bytes = len;
-	words = (len - init_bytes) >> 2;
-	end_bytes = (len - init_bytes) & 3;
-#endif
-
-	for (i = 0; i < init_bytes; i++) {
-#ifdef __LITTLE_ENDIAN
-		i0 = *p8++ ^ crc;
-		crc = t0_le[i0] ^ (crc >> 8);
-#else
-		i0 = *p8++ ^ (crc >> 24);
-		crc = t0_le[i0] ^ (crc << 8);
-#endif
-	}
-
-	for (i = 0; i < words; i++) {
-#ifdef __LITTLE_ENDIAN
-#  if CRC_LE_BITS == 64
-		/* slice by 8 algorithm */
-		q = *p32++ ^ crc;
-		i3 = q;
-		i2 = q >> 8;
-		i1 = q >> 16;
-		i0 = q >> 24;
-		crc = t7_le[i3] ^ t6_le[i2] ^ t5_le[i1] ^ t4_le[i0];
-
-		q = *p32++;
-		i3 = q;
-		i2 = q >> 8;
-		i1 = q >> 16;
-		i0 = q >> 24;
-		crc ^= t3_le[i3] ^ t2_le[i2] ^ t1_le[i1] ^ t0_le[i0];
-#  else
-		/* slice by 4 algorithm */
-		q = *p32++ ^ crc;
-		i3 = q;
-		i2 = q >> 8;
-		i1 = q >> 16;
-		i0 = q >> 24;
-		crc = t3_le[i3] ^ t2_le[i2] ^ t1_le[i1] ^ t0_le[i0];
-#  endif
-#else
-#  if CRC_LE_BITS == 64
-		q = *p32++ ^ crc;
-		i3 = q >> 24;
-		i2 = q >> 16;
-		i1 = q >> 8;
-		i0 = q;
-		crc = t7_le[i3] ^ t6_le[i2] ^ t5_le[i1] ^ t4_le[i0];
-
-		q = *p32++;
-		i3 = q >> 24;
-		i2 = q >> 16;
-		i1 = q >> 8;
-		i0 = q;
-		crc ^= t3_le[i3] ^ t2_le[i2] ^ t1_le[i1] ^ t0_le[i0];
-#  else
-		q = *p32++ ^ crc;
-		i3 = q >> 24;
-		i2 = q >> 16;
-		i1 = q >> 8;
-		i0 = q;
-		crc = t3_le[i3] ^ t2_le[i2] ^ t1_le[i1] ^ t0_le[i0];
-#  endif
-#endif
-	}
-
-	p8 = (u8 *)p32;
-
-	for (i = 0; i < end_bytes; i++) {
-#ifdef __LITTLE_ENDIAN
-		i0 = *p8++ ^ crc;
-		crc = t0_le[i0] ^ (crc >> 8);
-#else
-		i0 = *p8++ ^ (crc >> 24);
-		crc = t0_le[i0] ^ (crc << 8);
-#endif
-	}
-
-	return __le32_to_cpu((__force __le32)crc);
-}
-#endif
-
-#if CRC_BE_BITS > 8
-static inline u32 crc32_be_body(u32 crc, u8 const *buf, size_t len)
-{
-	const u8 *p8;
-	const u32 *p32;
-	int init_bytes, end_bytes;
-	size_t words;
-	int i;
-	u32 q;
-	u8 i0, i1, i2, i3;
-
-	crc = (__force u32) __cpu_to_be32(crc);
-
-#if CRC_LE_BITS == 64
-	p8 = buf;
-	p32 = (u32 *)(((uintptr_t)p8 + 7) & ~7);
-
-	init_bytes = (uintptr_t)p32 - (uintptr_t)p8;
-	if (init_bytes > len)
-		init_bytes = len;
-	words = (len - init_bytes) >> 3;
-	end_bytes = (len - init_bytes) & 7;
-#else
-	p8 = buf;
-	p32 = (u32 *)(((uintptr_t)p8 + 3) & ~3);
-
-	init_bytes = (uintptr_t)p32 - (uintptr_t)p8;
-	if (init_bytes > len)
-		init_bytes = len;
-	words = (len - init_bytes) >> 2;
-	end_bytes = (len - init_bytes) & 3;
-#endif
-
-	for (i = 0; i < init_bytes; i++) {
-#ifdef __LITTLE_ENDIAN
-		i0 = *p8++ ^ crc;
-		crc = t0_be[i0] ^ (crc >> 8);
-#else
-		i0 = *p8++ ^ (crc >> 24);
-		crc = t0_be[i0] ^ (crc << 8);
-#endif
-	}
-
-	for (i = 0; i < words; i++) {
-#ifdef __LITTLE_ENDIAN
-#  if CRC_LE_BITS == 64
-		/* slice by 8 algorithm */
-		q = *p32++ ^ crc;
-		i3 = q;
-		i2 = q >> 8;
-		i1 = q >> 16;
-		i0 = q >> 24;
-		crc = t7_be[i3] ^ t6_be[i2] ^ t5_be[i1] ^ t4_be[i0];
-
-		q = *p32++;
-		i3 = q;
-		i2 = q >> 8;
-		i1 = q >> 16;
-		i0 = q >> 24;
-		crc ^= t3_be[i3] ^ t2_be[i2] ^ t1_be[i1] ^ t0_be[i0];
-#  else
-		/* slice by 4 algorithm */
-		q = *p32++ ^ crc;
-		i3 = q;
-		i2 = q >> 8;
-		i1 = q >> 16;
-		i0 = q >> 24;
-		crc = t3_be[i3] ^ t2_be[i2] ^ t1_be[i1] ^ t0_be[i0];
-#  endif
-#else
-#  if CRC_LE_BITS == 64
-		q = *p32++ ^ crc;
-		i3 = q >> 24;
-		i2 = q >> 16;
-		i1 = q >> 8;
-		i0 = q;
-		crc = t7_be[i3] ^ t6_be[i2] ^ t5_be[i1] ^ t4_be[i0];
-
-		q = *p32++;
-		i3 = q >> 24;
-		i2 = q >> 16;
-		i1 = q >> 8;
-		i0 = q;
-		crc ^= t3_be[i3] ^ t2_be[i2] ^ t1_be[i1] ^ t0_be[i0];
-#  else
-		q = *p32++ ^ crc;
-		i3 = q >> 24;
-		i2 = q >> 16;
-		i1 = q >> 8;
-		i0 = q;
-		crc = t3_be[i3] ^ t2_be[i2] ^ t1_be[i1] ^ t0_be[i0];
-#  endif
-#endif
-	}
-
-	p8 = (u8 *)p32;
-
-	for (i = 0; i < end_bytes; i++) {
-#ifdef __LITTLE_ENDIAN
-		i0 = *p8++ ^ crc;
-		crc = t0_be[i0] ^ (crc >> 8);
-#else
-		i0 = *p8++ ^ (crc >> 24);
-		crc = t0_be[i0] ^ (crc << 8);
-#endif
-	}
-
-	return __be32_to_cpu((__force __be32)crc);
->>>>>>> 35da0ea... lib/crc: add slice by 8 algorithm to crc32.c
 }
 #endif
 
@@ -366,13 +135,9 @@ static inline u32 crc32_be_body(u32 crc, u8 const *buf, size_t len)
  * @p: pointer to buffer over which CRC is run
  * @len: length of buffer @p
  */
-<<<<<<< HEAD
 static inline u32 __pure crc32_le_generic(u32 crc, unsigned char const *p,
 					  size_t len, const u32 (*tab)[256],
 					  u32 polynomial)
-=======
-u32 __pure crc32_le(u32 crc, unsigned char const *p, size_t len)
->>>>>>> 35da0ea... lib/crc: add slice by 8 algorithm to crc32.c
 {
 #if CRC_LE_BITS == 1
 	int i;
@@ -389,7 +154,6 @@ u32 __pure crc32_le(u32 crc, unsigned char const *p, size_t len)
 		crc = (crc >> 2) ^ tab[0][crc & 3];
 		crc = (crc >> 2) ^ tab[0][crc & 3];
 	}
-<<<<<<< HEAD
 # elif CRC_LE_BITS == 4
 	while (len--) {
 		crc ^= *p++;
@@ -421,33 +185,6 @@ u32 __pure __crc32c_le(u32 crc, unsigned char const *p, size_t len)
 	return crc32_le_generic(crc, p, len, crc32ctable_le, CRC32C_POLY_LE);
 }
 EXPORT_SYMBOL(__crc32c_le);
-=======
-# elif CRC_LE_BITS == 2
-	while (len--) {
-		crc ^= *p++;
-		crc = (crc >> 2) ^ t0_le[crc & 0x03];
-		crc = (crc >> 2) ^ t0_le[crc & 0x03];
-		crc = (crc >> 2) ^ t0_le[crc & 0x03];
-		crc = (crc >> 2) ^ t0_le[crc & 0x03];
-	}
-# elif CRC_LE_BITS == 4
-	while (len--) {
-		crc ^= *p++;
-		crc = (crc >> 4) ^ t0_le[crc & 0x0f];
-		crc = (crc >> 4) ^ t0_le[crc & 0x0f];
-	}
-# elif CRC_LE_BITS == 8
-	while (len--) {
-		crc ^= *p++;
-		crc = (crc >> 8) ^ t0_le[crc & 0xff];
-	}
-# else
-	crc = crc32_le_body(crc, p, len);
-# endif
-	return crc;
-}
-EXPORT_SYMBOL(crc32_le);
->>>>>>> 35da0ea... lib/crc: add slice by 8 algorithm to crc32.c
 
 /**
  * crc32_be() - Calculate bitwise big-endian Ethernet AUTODIN II CRC32
@@ -456,20 +193,15 @@ EXPORT_SYMBOL(crc32_le);
  * @p: pointer to buffer over which CRC is run
  * @len: length of buffer @p
  */
-<<<<<<< HEAD
 static inline u32 __pure crc32_be_generic(u32 crc, unsigned char const *p,
 					  size_t len, const u32 (*tab)[256],
 					  u32 polynomial)
-=======
-u32 __pure crc32_be(u32 crc, unsigned char const *p, size_t len)
->>>>>>> 35da0ea... lib/crc: add slice by 8 algorithm to crc32.c
 {
 #if CRC_BE_BITS == 1
 	int i;
 	while (len--) {
 		crc ^= *p++ << 24;
 		for (i = 0; i < 8; i++)
-<<<<<<< HEAD
 			crc =
 			    (crc << 1) ^ ((crc & 0x80000000) ? polynomial :
 					  0);
@@ -487,29 +219,10 @@ u32 __pure crc32_be(u32 crc, unsigned char const *p, size_t len)
 		crc ^= *p++ << 24;
 		crc = (crc << 4) ^ tab[0][crc >> 28];
 		crc = (crc << 4) ^ tab[0][crc >> 28];
-=======
-			crc = (crc << 1) ^
-			      ((crc & 0x80000000) ? CRCPOLY_BE : 0);
-	}
-# elif CRC_BE_BITS == 2
-	while (len--) {
-		crc ^= *p++ << 24;
-		crc = (crc << 2) ^ t0_be[crc >> 30];
-		crc = (crc << 2) ^ t0_be[crc >> 30];
-		crc = (crc << 2) ^ t0_be[crc >> 30];
-		crc = (crc << 2) ^ t0_be[crc >> 30];
-	}
-# elif CRC_BE_BITS == 4
-	while (len--) {
-		crc ^= *p++ << 24;
-		crc = (crc << 4) ^ t0_be[crc >> 28];
-		crc = (crc << 4) ^ t0_be[crc >> 28];
->>>>>>> 35da0ea... lib/crc: add slice by 8 algorithm to crc32.c
 	}
 # elif CRC_BE_BITS == 8
 	while (len--) {
 		crc ^= *p++ << 24;
-<<<<<<< HEAD
 		crc = (crc << 8) ^ tab[0][crc >> 24];
 	}
 # else
@@ -524,15 +237,6 @@ u32 __pure crc32_be(u32 crc, unsigned char const *p, size_t len)
 {
 	return crc32_be_generic(crc, p, len, crc32table_be, CRCPOLY_BE);
 }
-=======
-		crc = (crc << 8) ^ t0_be[crc >> 24];
-	}
-# else
-	crc = crc32_be_body(crc, p, len);
-# endif
-	return crc;
-}
->>>>>>> 35da0ea... lib/crc: add slice by 8 algorithm to crc32.c
 EXPORT_SYMBOL(crc32_be);
 
 #ifdef CONFIG_CRC32_SELFTEST
