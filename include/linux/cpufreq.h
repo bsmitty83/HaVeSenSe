@@ -385,6 +385,12 @@ extern struct cpufreq_governor cpufreq_gov_badass;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_DANCEDANCE)
 extern struct cpufreq_governor cpufreq_gov_dancedance;
 #define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_dancedance) 
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_DARKSIDE)
+extern struct cpufreq_governor cpufreq_gov_darkside;
+#define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_darkside)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_VIRTUOUS)
+extern struct cpufreq_governor cpufreq_gov_virtuous;
+#define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_virtuous)
 #endif
 
 

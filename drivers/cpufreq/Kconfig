@@ -352,7 +352,21 @@ config CPU_FREQ_GOV_SMARTASSH3
 config CPU_FREQ_GOV_DANCEDANCE
   tristate "'dancedance' cpufreq governor"
   depends on CPU_FREQ
- 
+
+config CPU_FREQ_GOV_VIRTUOUS
+        tristate "'virtuous' cpufreq governor"
+        depends on CPU_FREQ
+        help
+          'virtuous' - A conservatice based governor
+
+          If in doubt, say N.
+
+config CPU_FREQ_GOV_DARKSIDE
+	tristate "'darkside' cpufreq governor"
+	depends on CPU_FREQ
+	help
+	'darkside' - a "slightly more agressive smart" optimized governor!
+
 config CPU_FREQ_VDD_LEVELS
 	bool "CPU Vdd levels sysfs interface"
 	depends on CPU_FREQ_STAT
