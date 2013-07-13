@@ -385,12 +385,16 @@ extern struct cpufreq_governor cpufreq_gov_badass;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_DANCEDANCE)
 extern struct cpufreq_governor cpufreq_gov_dancedance;
 #define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_dancedance) 
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_DARKSIDE)
-extern struct cpufreq_governor cpufreq_gov_darkside;
-#define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_darkside)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_VIRTUOUS)
-extern struct cpufreq_governor cpufreq_gov_virtuous;
-#define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_virtuous)
+#define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_badass)  
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_HYPER)
+extern struct cpufreq_governor cpufreq_gov_hyper;
+#define CPUFREQ_DEFAULT_GOVERNOR  (&cpufreq_gov_hyper)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_ADAPTIVE)
+extern struct cpufreq_governor cpufreq_gov_adaptive;
+#define CPUFREQ_DEFAULT_GOVERNOR  (&cpufreq_gov_adaptive)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SMARTMAX)
+extern struct cpufreq_governor cpufreq_gov_smartmax;
+#define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_smartmax)
 #endif
 
 
