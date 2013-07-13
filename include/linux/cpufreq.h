@@ -381,20 +381,13 @@ extern struct cpufreq_governor cpufreq_gov_intellidemand;
 extern struct cpufreq_governor cpufreq_gov_minmax;
 #define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_minmax)
 extern struct cpufreq_governor cpufreq_gov_badass;
-#define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_badass) 
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_DANCEDANCE)
-extern struct cpufreq_governor cpufreq_gov_dancedance;
-#define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_dancedance) 
 #define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_badass)  
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_HYPER)
 extern struct cpufreq_governor cpufreq_gov_hyper;
-#define CPUFREQ_DEFAULT_GOVERNOR  (&cpufreq_gov_hyper)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_ADAPTIVE)
+#define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_hyper)  
 extern struct cpufreq_governor cpufreq_gov_adaptive;
-#define CPUFREQ_DEFAULT_GOVERNOR  (&cpufreq_gov_adaptive)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SMARTMAX)
-extern struct cpufreq_governor cpufreq_gov_smartmax;
-#define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_smartmax)
+#define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_adaptive)  
+extern struct cpufreq_governor cpufreq_gov_smartassh3;
+#define CPUFREQ_DEFAULT_GOVERNOR (&cpufreq_gov_smartassh3)  
 #endif
 
 
@@ -442,3 +435,4 @@ extern unsigned int get_max_cpu_freq(void);
 #endif
 
 #endif /* _LINUX_CPUFREQ_H */
+
